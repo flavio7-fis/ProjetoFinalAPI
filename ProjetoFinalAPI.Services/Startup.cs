@@ -2,11 +2,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ProjetoFinalAPI.Repository.Context;
+using ProjetoFinalAPI.Repository.Interfaces;
+using ProjetoFinalAPI.Repository.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +32,21 @@ namespace ProjetoFinalAPI.Services
         {
             services.AddControllers();
 
+            #region EntityFramework
+
+            //configurar a classe DbContext (SqlServerContext)
+            services.AddDbContext<SqlServerContext>
+            (options => options.UseSqlServer
+            (Configuration.GetConnectionString("ProjetoFinalAPI")));
+            //adicionar as interfaces / classes
+            //de repositorio criadas no projeto..
+            services.AddTransient<IProfissionalRepository,
+            ProfissionalRepository>();
+            services.AddTransient<IServicoRepository,
+            ServicoRepository>();
+
+            #endregion
+
             #region Swagger
 
             services.AddSwaggerGen(
@@ -48,6 +67,10 @@ namespace ProjetoFinalAPI.Services
                 }
                 );
 
+            #endregion
+
+            #region AutoMapper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #endregion
 
         }
